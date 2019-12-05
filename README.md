@@ -1,6 +1,7 @@
 # OxygenX
 
-```Features:
+```
+Features:
 Multi-threading
 Proxy and Proxyless
 HTTPS, SOCKS4, SOCKS5 Proxies supported (and it also auto auth proxies like Luminati proxies)
@@ -8,8 +9,7 @@ Checks capes for Minecon, Optifine, Labymod, and LiquidBounce
 Checks Hypixel ranks, Mineplex ranks and Hive ranks (Including Levels!)
 ```
 
-
-Support:
+# Support:
 If you need any help, add me on discord at ShadowOxygen#3485
 
 
