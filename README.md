@@ -7,7 +7,7 @@ Multi-threading
 Proxy and Proxyless
 HTTPS, SOCKS4, SOCKS5 Proxies supported (and it also auto auth proxies like Luminati proxies)
 Checks capes for Minecon, Optifine, Labymod, and LiquidBounce
-Checks Hypixel ranks, Mineplex ranks and Hive ranks (Including Levels!)
+Checks ranks for Hypixel, Mineplex, and Hive (also checks Levels for Hypixel and Mineplex)
 ```
 
 # Support:
