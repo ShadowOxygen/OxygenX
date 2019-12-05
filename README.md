@@ -1,9 +1,8 @@
 # OxygenX
-Open Source Minecraft account checker
 
 
+Features:
 
-# Features
 Multi-threading
 
 Proxy and Proxyless
@@ -15,8 +14,8 @@ Checks Minecon capes, Optifine capes, Labymod cape, LiquidBounce cape
 Checks Hypixel ranks, Mineplex ranks and Hive ranks (Including Levels!)
 
 
-# Support
-If you need any help add me on discord at ShadowOxygen#3485
+Support:
+If you need any help, add me on discord at ShadowOxygen#3485
 
 
 # Terms and conditions
