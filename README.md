@@ -14,3 +14,7 @@ Checks Hypixel ranks, Mineplex ranks and Hive ranks (Including Levels!)
 # Support
 If you need any help add me on discord at ShadowOxygen#3485
 
+
+# Terms and conditions
+This repository is for educational purposes only
+I am not responsible for any actions for anyone who use this code
