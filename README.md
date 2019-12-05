@@ -16,5 +16,5 @@ If you need any help add me on discord at ShadowOxygen#3485
 
 
 # Terms and conditions
-This repository is for educational purposes only
+This repository is for educational purposes only and
 I am not responsible for any actions for anyone who use this code
