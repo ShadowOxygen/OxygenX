@@ -1,0 +1,50 @@
+checker:
+  # Amount of checks for a account many times to check a account.
+  # Needs to be 1 or higher
+  retries: 4
+
+  # Higher for better accuracy but slower (counted in milliseconds)
+  timeout: 10000
+
+  # Threads for account checking
+  threads: 100
+  
+  # Check if working accounts are mail accessed
+  mail_access: true
+  
+  # Save ranked accounts in secured.txt or unsecured.txt
+  save_rankedtypes: false
+  
+  # Save bad accounts, good for checking paid alts (will use more cpu and take longer)
+  save_bad: false
+
+  # User should keep this false
+  debugging: true
+
+  capes:
+    # Check capes
+    liquidbounce: true
+    optifine: true
+    labymod:  true
+    minecon:  true
+
+  rank:
+    mineplex: true
+    hypixel:  true
+    hivemc: true
+
+  level:
+    # Check Levels
+    hypixel: true
+    mineplex: true
+    # Minimum high level accounts
+    hypixel_level: 25
+    mineplex_level: 25
+
+  proxy:
+    # If proxies should be used, Will be proxyless if set to false (Use VPN if set to false or you will be ip banned)
+    proxy: true
+    # Proxy types: https | socks4 | socks5
+    proxy_type: 'socks5'
+    # Proxy file name
+    proxy_file: 'proxies.txt'
