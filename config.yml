@@ -13,7 +13,7 @@ checker:
   mail_access: true
   
   # Save ranked accounts in secured.txt or unsecured.txt
-  save_rankedtypes: false
+  save_rankedtypes: true
   
   # Save bad accounts, good for checking paid alts (will use more cpu and take longer)
   save_bad: false
