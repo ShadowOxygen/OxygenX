@@ -101,7 +101,8 @@ class Counter:
 
 class Main:
     def __init__(self):
-        windll.kernel32.SetConsoleTitleW('OxygenX-0.2 | by ShadowOxygen')
+        self.version = '0.2'
+        windll.kernel32.SetConsoleTitleW(f'OxygenX-{self.version} | by ShadowOxygen')
         self.printing = Queue()
         self.caputer = Queue()
         self.hits = Queue()
@@ -407,7 +408,7 @@ class Main:
     def tite(self):
         while self.stop:
             windll.kernel32.SetConsoleTitleW(
-                "OxygenX | "
+                f"OxygenX-{self.version} | "
                 f"Hits: {str(Counter.hits)}"
                 f" | Bad: {str(Counter.bad)}"
                 f' | Secured: {str(Counter.nfa)}'
