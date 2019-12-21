@@ -31,7 +31,10 @@ while True:
 
   # Check hits if its a mail access
   mail_access: true
-
+  
+  # Save ranked accounts in secured.txt or unsecured.txt
+  save_rankedtypes: true
+  
   # Save bad accounts, good for checking paid alts (will use more cpu and take longer)
   save_bad: false
 
@@ -185,7 +188,7 @@ class Main:
         while True:
             if self.printing.qsize() == 0 and self.towrite.qsize() == 0 and self.caputer.qsize() == 0 and self.bad.qsize() == 0 and self.hits.qsize() == 0:
                 sleep(4)
-                print(f'{Fore.LIGHTGREEN_EX}\n\n\nResults: \n'
+                print(f'{Fore.LIGHTGREEN_EX}\n\nResults: \n'
                       f'Hits: {Counter.hits}\n'
                       f'Bad: {Counter.bad}\n'
                       f'Demo: {Counter.demo}\n'
@@ -238,7 +241,9 @@ class Main:
                 username = answer['availableProfiles'][0]['name']
                 self.hits.put(line)
                 token = answer['accessToken']
-                sfa = True
+                dosfa = True
+                sfa = False
+                saveranked = True
                 securec = 'False'
                 data = '======================================\n' \
                     f'{line}\n' \
@@ -251,22 +256,21 @@ class Main:
                     self.printing.put(Fore.LIGHTMAGENTA_EX + f'[Unmigrated] {line}' + Fore.WHITE)
                     self.towrite.put([line, 'Unmigrated'])
                     data += '\nUnmigrated: True'
-                    sfa = False
+                    dosfa = False
 
-                if sfa:
+                if dosfa:
                     securec = self.securedcheck(token=token)
                 if securec == '[]':
                     Counter.sfa += 1
                     self.printing.put(
                         Fore.LIGHTGREEN_EX + f'[{Fore.LIGHTCYAN_EX + "Unsecured" + Fore.LIGHTGREEN_EX}] {line} User: {username}' + Fore.WHITE)
-                    self.towrite.put([line, 'Unsecured'])
+                    sfa = True
                     data += '\nUnsecured: True'
                 elif securec == 'False':
                     pass
                 else:
                     Counter.nfa += 1
                     self.printing.put(Fore.LIGHTGREEN_EX + f'[Secured] {line} User: {username}' + Fore.WHITE)
-                    self.towrite.put([line, 'Secured'])
                 Counter.hits += 1
                 if self.name(username):
                     Counter.special_name += 1
@@ -277,10 +281,11 @@ class Main:
                     hp = self.hypixel(uuid)
                     if self.hypr:
                         if hp[0] != 'False':
+                            if not Checker.save_rankedtypes:
+                                saveranked = False
                             Counter.hypixelrank += 1
                             self.towrite.put([f'{line} | Rank: {hp[0]}', 'HypixelRanked'])
                             data += f'\nHypixelRank: {hp[0]}'
-
                     if self.hypl:
                         if int(hp[1]) != 0:
                             data += f'\nHypixelLevel: {str(hp[1])}'
@@ -292,6 +297,8 @@ class Main:
                     mp = self.mineplex(username)
                     if self.mpr:
                         if mp[0] != 'False':
+                            if not Checker.save_rankedtypes:
+                                saveranked = False
                             Counter.mineplexrank += 1
                             self.towrite.put([f'{line} | Rank: {mp[0]}', 'MineplexRanked'])
                             data += f'\nMineplexRank: {mp[0]}'
@@ -305,6 +312,8 @@ class Main:
                 if self.hivemcrank:
                     hivemc_rank = self.hivemc(uuid)
                     if hivemc_rank is not False:
+                        if not Checker.save_rankedtypes:
+                            saveranked = False
                         self.towrite.put([f'{line} | Rank: {str(hivemc_rank)}', 'HiveRanked'])
                         Counter.hivemcrank += 1
                         data += f'\nHiveRank: {str(hivemc_rank)}'
@@ -333,6 +342,12 @@ class Main:
                         Counter.emailaccess += 1
                         self.towrite.put([line, 'EmailAccess'])
                         data += '\nEmail Access: True'
+                if saveranked:
+                    if sfa:
+                        self.towrite.put([line, 'Unsecured'])
+                    else:
+                        self.towrite.put([line, 'Secured'])
+
                 self.caputer.put(data)
         except Exception as e:
             if self.debug:
@@ -527,7 +542,7 @@ class Main:
     def mineplex(self, username):
         both = ['False', '0']
         try:
-            response = str(get(f'https://www.mineplex.com/players/{username}', timeout=6).text)
+            response = str(get(f'https://www.mineplex.com/players/{username}', timeout=8).text)
             if response.__contains__('That player cannot be found.'):
                 both[1] = 0
                 both[0] = 'False'
@@ -547,7 +562,7 @@ class Main:
         headers = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}
         try:
-            response = get(f'https://hypixel.net/player/{uuid}', headers=headers, timeout=13).text
+            response = get(f'https://hypixel.net/player/{uuid}', headers=headers, timeout=8).text
             if response.__contains__("Player's Network Level"):
                 both[1] = self.hyl.search(response).group(1)
                 if '\n<span class="rank-badge' in response:
@@ -573,6 +588,7 @@ class Checker:
     timeout = int(config['checker']['timeout'])
     threads = int(config['checker']['threads'])
     emailaccess = bool(config['checker']['mail_access'])
+    save_rankedtypes = bool(config['checker']['save_rankedtypes'])
     save_bad = bool(config['checker']['save_bad'])
     debug = bool(config['checker']['debugging'])
 
