@@ -13,6 +13,7 @@ Checks for Email Access
 
 # Support:
 If you need any help, add me on discord at ShadowOxygen#3485
+You can also support me by tipping me with BAT or starting using Brave https://brave.com/rtx014
 
 
 # Terms and conditions
