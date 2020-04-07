@@ -22,14 +22,8 @@ checker:
   debugging: false
   
   # Api key to check hypixel ranks and levels
-  # use any key from the following
-  # 79326ca4-54b2-4a8a-a5b4-d9ee111f674b
-  # 99ad5c56-5320-4b0c-9e4f-a7af1c9641f9
-  # 0f649707-2603-4fd8-853e-8c80ae93e3a9
-  # cdfa2b06-d2c9-4525-9154-2b204d6b4f0b
-  # 01c39cd8-dffc-4ce4-8faf-5069bc9d06ba
-  # 0c723844-5762-4366-9034-3be21758b685
-  hypixel_api_key: '79326ca4-54b2-4a8a-a5b4-d9ee111f674b'
+  # Get hypixel key by going to hypixel.net and do /api new
+  hypixel_api_key: ''
 
   capes:
     # Check capes
