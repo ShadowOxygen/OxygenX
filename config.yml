@@ -23,7 +23,11 @@ checker:
   
   # Api key to check hypixel ranks and levels
   # Get hypixel key by going to hypixel.net and do /api new
-  hypixel_api_key: ''
+  # Free keys provided by Delta658 :D
+  # 3217da80-0202-41a5-8399-df998a4425dd
+  # 5549cdea-1378-4b00-b6a4-244b42846bde
+  # 491cfe7f-e3e5-48b5-97ff-4b7d3e5fbe7f
+  hypixel_api_key: '77de8865-1265-4496-9d79-f8cff96c4c86'
 
   capes:
     # Check capes
