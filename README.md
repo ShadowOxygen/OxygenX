@@ -11,6 +11,7 @@ Checks ranks for Hypixel, Mineplex, and Hive (also checks Levels for Hypixel and
 Checks for Email Access
 ```
 
+You can download the exe version in releases
 # Support:
 If you need any help, add me on discord at ShadowOxygen#3485
 Please do not ask me about cracking.
