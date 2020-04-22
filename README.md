@@ -20,6 +20,7 @@ Please do not ask me about cracking.
 
 # Donate
 You can support me by tipping me with BAT or starting using Brave https://brave.com/rtx014
+Or you can donate to me Discord Nitro codes :P
 
 
 # Terms and conditions
