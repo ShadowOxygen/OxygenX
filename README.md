@@ -6,8 +6,10 @@ Features:
 Multi-threading
 Proxy and Proxyless
 HTTPS, SOCKS4, SOCKS5 Proxies supported (and it also auto auth proxies like Luminati proxies)
+Gets proxies from api link and refreshes link.
 Checks capes for Minecon, Optifine, Labymod, and LiquidBounce
-Checks ranks for Hypixel, Mineplex, and Hive (also checks Levels for Hypixel and Mineplex)
+Checks ranks for Hypixel, Mineplex, Hive, Velt, Lunar
+Saves Levels for Hypixel and Mineplex and also gets Hypixel's last logout date.
 Checks for Email Access
 ```
 
