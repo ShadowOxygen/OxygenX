@@ -1,0 +1,69 @@
+checker:
+
+  # Check if current version of OxygenX is latest  
+  check_for_updates: true
+
+  # Amount of checks for a account many times to check a account.
+  # Needs to be 1 or higher
+  retries: 2
+
+  # Higher for better accuracy but slower (counted in milliseconds)
+  timeout: 8000
+
+  # Threads for account checking
+  threads: 100
+
+  # Check hits if its a mail access
+  mail_access: true
+  
+  # Save ranked accounts in secured.txt or unsecured.txt (Turn it off for ranked accounts NOT to save in secured.txt or unsecured.txt)
+  save_rankedtypes: true
+  
+  # Save bad accounts, good for checking paid alts (will use more cpu and take longer)
+  save_bad: false
+
+  # Normal users should keep this false unless problem start happening
+  debugging: false
+  
+
+  capes:
+    # Check capes
+    liquidbounce: true
+    optifine: true
+    labymod:  true
+    # Minecon/Mojang cape
+    minecon:  true
+
+  rank:
+  # Set true if you want to check the ranks/level
+    mineplex: true
+    hypixel:  true
+    hivemc: true
+    veltpvp: true
+    lunar: true
+
+  level:
+    # Save High leveled accounts in files.
+    hypixel: true
+    mineplex: true
+    # Minimum high level accounts
+    hypixel_level: 25
+    mineplex_level: 25
+
+  proxy:
+    # If proxies should be used, Will be proxyless if set to false (Recommended to use VPN if this is set to false.)
+    proxy: true
+    # Proxy types: https | socks4 | socks5
+    proxy_type: 'socks4'
+    # Proxy file name
+    proxy_file: 'proxies.txt'
+    
+    # If proxy api link to be used.
+    proxy_use_api: false
+    # If proxy_use_api is true, put api link in the parentheses
+    proxy_api_link: "https://api.proxyscrape.com/?request=getproxies&proxytype=socks4&timeout=5000"
+    # If proxy_use_api is true, put a number for seconds to refresh the link (every number under 30 is for no refreshing time, recommend refresh time: 300 seconds aka 5 minutes)
+    refresh_api_link: 300
+    
+    # If proxies be used for checking mail access
+    mailcheck_use_proxy: false
