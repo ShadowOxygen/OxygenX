@@ -18,10 +18,12 @@ You can download the exe version in releases
 Made for Windows 10 (Linux systems doesn't work with it unless you remove all lines/fuction with windll)
 # Support:
 If you need any help or want to put a ad, add and tell to me on discord ShadowOxygen#3485
+
 Please do not ask me about cracking.
 
 # Donate
 You can support me by tipping me with BAT or starting using Brave https://brave.com/rtx014
+
 Or you can donate to me Discord Nitro codes :P
 
 
