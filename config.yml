@@ -1,14 +1,14 @@
-checker:
+OxygenX:
 
   # Check if current version of OxygenX is latest  
   check_for_updates: true
 
   # Amount of checks for a account many times to check a account.
   # Needs to be 1 or higher
-  retries: 2
+  retries: 3
 
   # Higher for better accuracy but slower (counted in milliseconds)
-  timeout: 8000
+  timeout: 7000
 
   # Threads for account checking
   threads: 100
@@ -23,7 +23,7 @@ checker:
   save_bad: false
 
   # Normal users should keep this false unless problem start happening
-  debugging: false
+  debugging: true
   
 
   capes:
@@ -31,7 +31,6 @@ checker:
     liquidbounce: true
     optifine: true
     labymod:  true
-    # Minecon/Mojang cape
     minecon:  true
 
   rank:
@@ -46,24 +45,25 @@ checker:
     # Save High leveled accounts in files.
     hypixel: true
     mineplex: true
+    
     # Minimum high level accounts
     hypixel_level: 25
     mineplex_level: 25
 
   proxy:
     # If proxies should be used, Will be proxyless if set to false (Recommended to use VPN if this is set to false.)
-    proxy: true
+    proxy: false
+    # If true be used for checking sfas (Will sometimes be slower but if false, you might get ip banned)
+    proxy_for_sfa: true
     # Proxy types: https | socks4 | socks5
     proxy_type: 'socks4'
     # Proxy file name
     proxy_file: 'proxies.txt'
     
     # If proxy api link to be used.
-    proxy_use_api: false
+    proxy_use_api: true
     # If proxy_use_api is true, put api link in the parentheses
-    proxy_api_link: "https://api.proxyscrape.com/?request=getproxies&proxytype=socks4&timeout=5000"
+    proxy_api_link: "https://api.proxyscrape.com/?request=getproxies&proxytype=socks4&timeout=4000"
     # If proxy_use_api is true, put a number for seconds to refresh the link (every number under 30 is for no refreshing time, recommend refresh time: 300 seconds aka 5 minutes)
     refresh_api_link: 300
     
-    # If proxies be used for checking mail access
-    mailcheck_use_proxy: false
