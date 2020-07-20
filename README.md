@@ -26,8 +26,6 @@ You can support me by tipping me with BAT or starting using Brave https://brave.
 
 Or you can donate to me Discord Nitro codes :P
 
-# WARING IF ANYONE FINDS A OXYGENX THAT IS BIGGER THAN 7 MB, THAT VERSION MAY BE A RATTED VERSION SO PLEASE REMOVE IT AND REPORT IT
-
 # Terms and conditions
 This repository is for educational purposes only.
 
