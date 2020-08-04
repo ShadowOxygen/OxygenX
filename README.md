@@ -17,7 +17,7 @@ You can download the exe version in releases
 
 Made for Windows 10 (Linux systems doesn't work with it unless you remove all lines/fuction with windll)
 # Support:
-If you need any help come on to https://discord.gg/brpuxE6 and I will do my best to support.
+If you need any help come on to https://discord.gg/gAgCaX8 and I will do my best to support.
 
 Please do not ask me about cracking.
 
