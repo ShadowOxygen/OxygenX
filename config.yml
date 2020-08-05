@@ -12,14 +12,14 @@
 OxygenX:
 
   # Check if current version of OxygenX is latest
-  check_for_updates: false
+  check_for_updates: true
 
   # Amount of checks for a account many times to check a account. will be slower if retries is set higher
   # Needs to be 1 or higher (Recommanded: 1-2 for paid proxies, 3-6 for public proxies.)
   retries: 3
 
-  # Higher for better accuracy but slower (counted in milliseconds, example: 8000ms = 8 seconds)
-  timeout: 8000
+  # Higher for better accuracy but slower (counted in milliseconds, example: 6000ms = 6 seconds)
+  timeout: 6000
 
   # Threads for account checking
   threads: 200
@@ -42,7 +42,7 @@ OxygenX:
   # Print bad accounts
   print_bad: true
   
-  # Save bad accounts, good for checking paid alts (will use more cpu and take longer)
+  # Save bad accounts
   save_bad: true
 
   # Normal users should keep this false unless problem start happening
@@ -85,12 +85,12 @@ OxygenX:
     proxy_remove_limit: 200
     # If proxies be used for checking sfas (Will be slower but if false, you may get ip banned)
     proxy_for_sfa: true
-    # Sleep between checks if proxy mode is false
-    sleep_proxyless: 20
+    # Sleep between checks if proxy mode is false (put 0 for no sleep) counted in secouds
+    sleep_proxyless: 30
     
     api:
       # If proxy api link to be used.
-      use: true
+      use: false
       # If proxy_use_api is true, put api link in the parentheses
       api_link: "https://api.proxyscrape.com/?request=getproxies&proxytype=socks4&timeout=3000"
       # If proxy_use_api is true, put a number for seconds to refresh the link (every number under 30 is for no refreshing time, recommend refresh time: 300 seconds aka 5 minutes)

