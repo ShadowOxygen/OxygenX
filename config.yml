@@ -6,21 +6,29 @@
 #               \/      \/\/   /_____/      \/     \/      \_/
 #
 #                   -Created and coded by ShadowOxygen
+#                   -Code cleaned and revised by MohanadHosny#9152
+#                   -Config file for OxygenX-0.6
 
 OxygenX:
 
-  # Check if current version of OxygenX is latest  
-  check_for_updates: true
+  # Check if current version of OxygenX is latest
+  check_for_updates: false
 
-  # Amount of checks for a account many times to check a account.
-  # Needs to be 1 or higher
+  # Amount of checks for a account many times to check a account. will be slower if retries is set higher
+  # Needs to be 1 or higher (Recommanded: 1-2 for paid proxies, 3-6 for public proxies.)
   retries: 3
 
-  # Higher for better accuracy but slower (counted in milliseconds)
+  # Higher for better accuracy but slower (counted in milliseconds, example: 8000ms = 8 seconds)
   timeout: 8000
 
   # Threads for account checking
   threads: 200
+  
+  # Remove all duplicates in combolist
+  combo_duplicates: true
+  
+  # Remove all duplicates in proxylist/api
+  proxy_duplicates: true
   
   # Unmigrated mode (Email:Pass to User:Pass, Basically removes domains from email)
   unmigrated_mode: false
@@ -28,19 +36,19 @@ OxygenX:
   # Check hits if its a mail access
   mail_access: true
   
-  # Save ranked accounts in secured.txt or unsecured.txt (Turn it off for ranked accounts NOT to save in secured.txt or unsecured.txt)
-  save_rankedtypes: true
+  # Save ranked accounts in NFA.txt or SFA.txt (Turn it off for ranked accounts NOT to save in NFA.txt or SFA.txt)
+  save_ranked_type: true
   
   # Print bad accounts
   print_bad: true
   
   # Save bad accounts, good for checking paid alts (will use more cpu and take longer)
-  save_bad: false
+  save_bad: true
 
   # Normal users should keep this false unless problem start happening
   debugging: false
   
-
+  
   capes:
     # Check capes
     liquidbounce: true
@@ -67,15 +75,23 @@ OxygenX:
   proxy:
     # If proxies should be used, Will be proxyless if set to false (Recommended to use VPN if this is set to false.)
     proxy: true
-    # If proxies be used for checking sfas (Will sometimes be slower but if false, you may get ip banned)
-    proxy_for_sfa: true
     # Proxy types: https | socks4 | socks5
     proxy_type: 'socks4'
+    # Auto remove proxies (you can limit the proxies removed with proxy_remove_limit)
+    remove_invalid_proxies: true
+    # Auto remove proxies (you can limit the proxies removed with proxy_remove_limit)
+    remove_bad_proxy: false
+    # If remove bad proxies are on, once the proxy list hits the limit it will stop removing bad proxies
+    proxy_remove_limit: 200
+    # If proxies be used for checking sfas (Will be slower but if false, you may get ip banned)
+    proxy_for_sfa: true
+    # Sleep between checks if proxy mode is false
+    sleep_proxyless: 20
     
-    # If proxy api link to be used.
-    proxy_use_api: false
-    # If proxy_use_api is true, put api link in the parentheses
-    proxy_api_link: "https://api.proxyscrape.com/?request=getproxies&proxytype=socks4&timeout=4000"
-    # If proxy_use_api is true, put a number for seconds to refresh the link (every number under 30 is for no refreshing time, recommend refresh time: 300 seconds aka 5 minutes)
-    refresh_api_link: 300
-    
+    api:
+      # If proxy api link to be used.
+      use: true
+      # If proxy_use_api is true, put api link in the parentheses
+      api_link: "https://api.proxyscrape.com/?request=getproxies&proxytype=socks4&timeout=3000"
+      # If proxy_use_api is true, put a number for seconds to refresh the link (every number under 30 is for no refreshing time, recommend refresh time: 300 seconds aka 5 minutes)
+      refresh_time: 300
