@@ -7,7 +7,7 @@
 #
 #                   -Created and coded by ShadowOxygen
 #                   -Code cleaned and revised by MohanadHosny#9152
-#                   -Config file for OxygenX-0.6
+#                   -Config file for OxygenX-0.7
 
 OxygenX:
 
@@ -78,13 +78,11 @@ OxygenX:
     # Proxy types: https | socks4 | socks5
     proxy_type: 'socks4'
     # Auto remove proxies (you can limit the proxies removed with proxy_remove_limit)
-    remove_invalid_proxies: true
-    # Auto remove proxies (you can limit the proxies removed with proxy_remove_limit)
     remove_bad_proxy: false
     # If remove bad proxies are on, once the proxy list hits the limit it will stop removing bad proxies
-    proxy_remove_limit: 200
+    proxy_remove_limit: 2000
     # If proxies be used for checking sfas (Will be slower but if false, you may get ip banned)
-    proxy_for_sfa: true
+    proxy_for_sfa: false
     # Sleep between checks if proxy mode is false (put 0 for no sleep) counted in secouds
     sleep_proxyless: 30
     
