@@ -1,0 +1,9 @@
+certifi
+chardet
+colorama
+pysocks
+pyyaml
+requests
+easygui
+cloudscraper
+console
