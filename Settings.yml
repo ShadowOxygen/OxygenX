@@ -1,0 +1,97 @@
+#       ________                                     ____  ___
+#       \_____  \ ___  ______.__. ____   ____   ____ \   \/  /
+#        /   |   \\  \/  <   |  |/ ___\_/ __ \ /    \ \     /
+#       /    |    \>    < \___  / /_/  >  ___/|   |  \/     \
+#       \_______  /__/\_ \/ ____\___  / \___  >___|  /___/\  \
+#               \/      \/\/   /_____/      \/     \/      \_/
+#
+#                   -Created and coded by ShadowOxygen
+#                   -Code cleaned and revised by MohanadHosny#9152
+#                   -Settings file for OxygenX-0.8
+
+OxygenX:
+
+  # Check if current version of OxygenX is latest
+  check_for_updates: true
+
+  # Amount of checks for a account many times to check a account. will be slower if retries is set higher
+  # Needs to be 1 or higher (Recommanded: 1-2 for paid proxies, 3-6 for public proxies.)
+  retries: 3
+
+  # Higher for better accuracy but slower (counted in milliseconds, example: 6000ms = 6 seconds)
+  timeout: 6000
+
+  # Threads for account checking
+  threads: 200
+  
+  # Remove all duplicates in combolist
+  combo_duplicates: true
+  
+  # Remove all duplicates in proxylist/api
+  proxy_duplicates: true
+  
+  # Check hits if its a mail access
+  mail_access: true
+  
+  # Save ranked accounts in NFA.txt or SFA.txt (Turn it off for ranked accounts NOT to save in NFA.txt or SFA.txt)
+  save_ranked_type: true
+  
+  # Print bad accounts
+  print_bad: true
+  
+  # Save bad accounts
+  save_bad: true
+
+  # Normal users should keep this false unless problem start happening
+  debugging: false
+  
+  
+  capes:
+    # Check capes
+    liquidbounce: true
+    optifine: true
+    labymod:  true
+    mojang:  true
+
+  rank:
+  # Set true if you want to check the ranks/level
+    mineplex: true
+    hypixel:  true
+    hivemc: true
+    veltpvp: true
+
+  level:
+    # Save High leveled accounts in files.
+    hypixel: true
+    mineplex: true
+    
+    # Minimum high level accounts
+    hypixel_level: 25
+    mineplex_level: 25
+
+  proxy:
+    # If proxies should be used, Will be proxyless if set to false (Recommended to use VPN if this is set to false.)
+    proxy: true
+    # Proxy types: https | socks4 | socks5
+    proxy_type: 'socks4'
+    # EXPERMENTAL! Still in testing stage, may have problems
+    # Locks the proxy so other threads can't use it
+    lock_proxy: false
+    # EXPERMENTAL! Still in testing stage, may have problems
+    # Auto remove proxies (you can limit the proxies removed with proxy_remove_limit)
+    remove_bad_proxy: false
+    # EXPERMENTAL! Still in testing stage, may have problems
+    # If remove bad proxies are on, once the proxy list hits the limit it will stop removing bad proxies
+    proxy_remove_limit: 2000
+    # If proxies be used for checking sfas (Will be slower but if false, you may get ip banned)
+    proxy_for_sfa: false
+    # Sleep between checks if proxy mode is false (put 0 for no sleep) counted in secouds
+    sleep_proxyless: 30
+    
+    api:
+      # If proxy api link to be used.
+      use: false
+      # If proxy_use_api is true, put api link in the parentheses
+      api_link: "https://api.proxyscrape.com/?request=getproxies&proxytype=socks4&timeout=3000"
+      # If proxy_use_api is true, put a number for seconds to refresh the link (every number under 30 is for no refreshing time, recommend refresh time: 300 seconds aka 5 minutes)
+      refresh_time: 300
