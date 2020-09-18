@@ -13,7 +13,7 @@ Saves Levels for Hypixel and Mineplex and also gets Hypixel's last logout date.
 Checks for Email Access
 ```
 
-You can download the exe version in releases
+# You can download the exe version in releases
 
 # Support:
 If you need any help come on to https://discord.gg/FADetWK and I will do my best to support.
