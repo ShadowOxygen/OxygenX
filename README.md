@@ -21,9 +21,7 @@ If you need any help come on to https://discord.gg/FADetWK and I will do my best
 Please do not ask me about cracking.
 
 # Donate
-Paypal: https://bit.ly/3eZ4xx9
-
-You can also support me by tipping me with BAT or starting using Brave https://brave.com/rtx014
+You can also support me by tipping me with BAT or start using Brave https://brave.com/rtx014
 
 # Terms and conditions
 This repository is for educational purposes only.
