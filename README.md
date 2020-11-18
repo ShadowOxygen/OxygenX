@@ -18,7 +18,7 @@ Checks for Email Access
 # You can download the exe version in releases
 
 # Support:
-If you need any help come on to https://discord.gg/FADetWK and I will do my best to support.
+If you need any help come on to https://discord.gg/ZDvpCCy4yd and I will do my best to support.
 
 Please do not ask me about cracking.
 
