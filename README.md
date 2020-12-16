@@ -15,7 +15,7 @@ Saves Levels for Hypixel and Mineplex and also gets Hypixel's last logout date.
 Checks for Email Access
 ```
 
-# Download for EXE version. (I know, the release section is a hard to find but its on the bottom right of the github)
+# Download for EXE version. (Release section is on the right side of the Github)
 https://github.com/ShadowOxygen/OxygenX/releases/tag/v0.8
 
 # Support:
