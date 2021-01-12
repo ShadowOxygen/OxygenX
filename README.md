@@ -1,5 +1,7 @@
 # DISCONTINUED UNTIL FURTHER NOTICE
 
+# Labymod cape check is broken so turn it off in the settings file
+
 # OxygenX
 
 ```
